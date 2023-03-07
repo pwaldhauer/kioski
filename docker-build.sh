@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker build -t pwaldhauer/kioski:0.1.0 .
+docker build -t ghcr.io/pwaldhauer/kioski:latest .

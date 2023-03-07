@@ -27,7 +27,7 @@ php artisan serve
 
 ## Docker
 
-Use the ready-to-use docker image from [Docker Hub](https://hub.docker.com/r/pwaldhauer/kioski/).
+Use the ready-to-use docker image!
 
 ```bash
 
@@ -35,6 +35,6 @@ touch db.sqlite
 docker run -d \
  -p 127.0.0.1:9901:9901 \
  -v $(pwd)/db.sqlite:/app/database.sqlite \
- pwaldhauer/kioski:0.1.0    
+ ghcr.io/pwaldhauer/kioski:0.1.0
  
 ```
