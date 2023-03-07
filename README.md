@@ -2,6 +2,8 @@
 
 A simple web app to play things on your Home Assistant Media Players (e.g. Sonos speakers).
 
+![screenshot.png](screenshot.png)
+
 ## How to run
 
 ## Locally
