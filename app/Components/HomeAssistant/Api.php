@@ -66,7 +66,7 @@ class Api
 
     public function skipTitle($entityId)
     {
-        $this->request('/api/services/media_player/media_next_track', [
+        return $this->request('/api/services/media_player/media_next_track', [
             'entity_id' => $entityId,
         ]);
     }

@@ -3,8 +3,8 @@
 namespace App\Http\Livewire;
 
 use App\Components\HomeAssistant\Api;
-use App\Components\HomeAssistant\MediaPlayer;
 use App\Enums\Options;
+use App\Models\Item;
 use App\Models\Option;
 use GuzzleHttp\Exception\ServerException;
 use Livewire\Component;
@@ -12,8 +12,8 @@ use Livewire\Component;
 class MediaPlayerSelector extends Component
 {
 
-
     public string $playUri = '';
+
     public ?string $selectedPlayer = null;
 
     public ?string $entityId = null;
@@ -22,7 +22,8 @@ class MediaPlayerSelector extends Component
 
     protected $listeners = ['play' => 'play'];
 
-    public function closeError() {
+    public function closeError()
+    {
         $this->error = false;
     }
 
@@ -31,18 +32,32 @@ class MediaPlayerSelector extends Component
         $this->playUri = $payload;
 
         try {
+            $this->api()->setRepeatAll(
+                $this->entityId
+            );
+            
             $response = $this->api()->enqueueAlbum(
                 $this->entityId,
-                $this->playUri
+                $this->playUri,
+                enq: 'replace'
             );
+
+            $item = Item::where('uri', $this->playUri)->first();
+            if ($item->parent->skip_first_track_condition) {
+                if (preg_match('/(\d+)/', $item->name, $match)) {
+                    if (intval($match[1]) > $item->parent->skip_first_track_condition) {
+                        usleep(500);
+                        $response = $this->api()->skipTitle(
+                            $this->entityId
+                        );
+                    }
+                }
+            }
 
             $this->emit('title_changed', [...$response, 'state' => 'playing']);
         } catch (ServerException $e) {
             $this->error = true;
         }
-
-
-
     }
 
     public function selectPlayer($entityId)
@@ -64,7 +79,7 @@ class MediaPlayerSelector extends Component
 
     public function getMediaPlayersProperty()
     {
-        if(blank(Option::for(Options::HassHost)->value)) {
+        if (blank(Option::for(Options::HassHost)->value)) {
             return [];
         }
 
@@ -78,7 +93,8 @@ class MediaPlayerSelector extends Component
         return $players;
     }
 
-    public function reloadCache() {
+    public function reloadCache()
+    {
         cache()->forget('mediaplayers');
         $this->getMediaPlayersProperty();
     }
@@ -86,7 +102,7 @@ class MediaPlayerSelector extends Component
     public function mount()
     {
         $player = Option::where('key', 'selected_player')->first();
-        if(filled($player)) {
+        if (filled($player)) {
             $this->selectPlayer($player->value);
         }
     }
